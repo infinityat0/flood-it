@@ -47,8 +47,10 @@ var game = (function () {
                     }
                 }
             }
-        }, 
-        paintButtons = function () {
+        };
+    // returning an object that will have public methods exposed. 
+    return {
+        paintButtons : function () {
             var buttons = [], i;
             buttons.push("<ul>");
             for (i = 1 ; i <= nOfColors ; i = i + 1) {
@@ -57,7 +59,7 @@ var game = (function () {
             buttons.push("</ul>");
             $("#button-wrapper").prepend(buttons.join(""));
         },
-        newBoard = function () {
+        newBoard : function () {
             var i, j, node, boardHTML = [], rand ;
             map = {};
             unTouched = boardSize*boardSize -1 ;
@@ -88,10 +90,10 @@ var game = (function () {
             }
             $("#board").html(boardHTML.join(""));
             // Setting the root as traversed. 
-            play(map["0-0"].getColor(), $("#0-0").attr("class").split(" ")[1]);
+            this.play(map["0-0"].getColor(), $("#0-0").attr("class").split(" ")[1]);
             return map["0-0"];
         },
-        play = function (color, className){
+        play : function (color, className){
             steps = steps-1;
             var root = map["0-0"], traverseMap = {} ;
             root.setIn(true);
@@ -104,12 +106,7 @@ var game = (function () {
             else if(steps === 0) {
                 alert("You loose");
             }
-        };
-    // returning an object that will have public methods exposed. 
-    return {
-        paintButtons : paintButtons,
-        newBoard : newBoard,
-        play : play
+        }
     };
 }());
 
