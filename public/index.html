@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flood It</title>
+    <meta name="description" content="Flood the whole board with one colour before you run out of moves." />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='50' height='50' fill='%23F27405'/><rect x='50' width='50' height='50' fill='%2388A33E'/><rect y='50' width='50' height='50' fill='%238E3557'/><rect x='50' y='50' width='50' height='50' fill='%23203759'/></svg>" />
+    <link rel="stylesheet" href="base.css" />
+    <link rel="stylesheet" href="style.css" />
+    <script type="module" src="main.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Flood It</h1>
+        <p class="tagline">Fill the board with one colour, starting from the top-left corner.</p>
+      </header>
+
+      <div class="controls">
+        <select id="size" aria-label="Board size">
+          <option value="small">Small · 10×10</option>
+          <option value="medium" selected>Medium · 14×14</option>
+          <option value="large">Large · 18×18</option>
+        </select>
+        <button id="new" type="button" class="btn primary">New board</button>
+      </div>
+
+      <section class="stats" aria-label="Game status">
+        <div><span class="label">Moves</span><span id="moves" class="value">0</span></div>
+        <div><span class="label">Limit</span><span id="limit" class="value">0</span></div>
+        <div><span class="label">Filled</span><span id="filled" class="value">0%</span></div>
+      </section>
+
+      <div id="board" class="board" role="img" aria-label="Colour board"></div>
+
+      <div id="palette" class="palette" role="group" aria-label="Pick a colour"></div>
+
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+
+      <div class="controls">
+        <button id="retry" type="button" class="btn">Retry this board</button>
+      </div>
+
+      <details class="rules">
+        <summary>How to play</summary>
+        <ul>
+          <li>Your flood starts in the top-left square.</li>
+          <li>Pick a colour: the flood turns that colour and swallows every touching square of it.</li>
+          <li>Fill the entire board within the move limit to win. Every board can be won within its limit.</li>
+          <li>Keys 1–6 pick colours.</li>
+        </ul>
+      </details>
+    </main>
+  </body>
+</html>
