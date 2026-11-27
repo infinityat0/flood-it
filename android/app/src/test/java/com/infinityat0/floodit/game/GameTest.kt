@@ -11,8 +11,8 @@ class GameTest {
     @Test
     fun randomBoardsOnlyUsePaletteColoursIncludingTheFirst() {
         val seen = randomBoard(20).toSet()
-        assertEquals("all six colours appear", PALETTE.size, seen.size)
-        for (c in seen) assertTrue(c in 0 until PALETTE.size)
+        assertEquals("all six colours appear", COLOR_COUNT, seen.size)
+        for (c in seen) assertTrue(c in 0 until COLOR_COUNT)
     }
 
     @Test
@@ -45,7 +45,7 @@ class GameTest {
         while (g.status == Status.PLAYING) {
             var best = -1
             var bestSize = -1
-            for (c in 0 until PALETTE.size) {
+            for (c in 0 until COLOR_COUNT) {
                 if (c == g.cells[0]) continue
                 val size = floodRegion(flood(g.cells, 10, c), 10).size
                 if (size > bestSize) {
@@ -69,11 +69,11 @@ class GameTest {
     fun runningOutOfMovesLosesAndLocksTheBoard() {
         val base = createGame(10)
         var g = Game(base.size, base.colours, base.initial, base.cells, 0, 1, Status.PLAYING)
-        val other = (g.cells[0] + 1) % PALETTE.size
+        val other = (g.cells[0] + 1) % COLOR_COUNT
         g = play(g, other)
         if (!isComplete(g.cells)) {
             assertEquals(Status.LOST, g.status)
-            val after = play(g, (other + 1) % PALETTE.size)
+            val after = play(g, (other + 1) % COLOR_COUNT)
             assertSame("no moves after losing", g, after)
         }
     }
@@ -81,7 +81,7 @@ class GameTest {
     @Test
     fun restartReturnsToTheSameStartingBoard() {
         val g = createGame(10)
-        val played = play(g, (g.cells[0] + 1) % PALETTE.size)
+        val played = play(g, (g.cells[0] + 1) % COLOR_COUNT)
         val r = restart(played)
         assertArrayEquals(g.initial, r.cells)
         assertEquals(0, r.moves)

@@ -1,10 +1,12 @@
+<!-- A 3×3 board mid-game: the sky-blue flood has spread from the top-left corner. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path android:fillColor="#F27405" android:pathData="M30,30h24v24h-24z" />
-    <path android:fillColor="#88A33E" android:pathData="M54,30h24v24h-24z" />
-    <path android:fillColor="#8E3557" android:pathData="M30,54h24v24h-24z" />
-    <path android:fillColor="#203759" android:pathData="M54,54h24v24h-24z" />
+    <!-- Flood region: top row, left column and centre. -->
+    <path android:fillColor="#6AA6DA" android:pathData="M27,27h54v18h-18v18h-18v18h-18z" />
+    <path android:fillColor="#EF8A7B" android:pathData="M63,45h18v18h-18z" />
+    <path android:fillColor="#F4C95D" android:pathData="M45,63h18v18h-18z" />
+    <path android:fillColor="#7CC6A4" android:pathData="M63,63h18v18h-18z" />
 </vector>

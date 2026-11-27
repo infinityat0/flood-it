@@ -30,8 +30,20 @@ npm test           # Node 18+, built-in test runner
 
 ## Android app
 
-A native Kotlin + Jetpack Compose port with the same rules, board sizes, move
-limits and colours. Build and install on a connected device or emulator:
+**Color Flood**: a native Kotlin + Jetpack Compose version with the same rules,
+board sizes and move limits. The ☰ menu holds the settings:
+
+- **Colors** – six color themes (Meadow, Ocean, Sunset, Pastel, Classic and a
+  color-blind friendly Okabe–Ito set)
+- **Appearance** – follow the system, or force light or dark
+- **Board size** – 10×10, 14×14 or 18×18
+- **How to play**
+
+Settings are saved on the device and included in Android Auto Backup, so they
+survive restarts and updates and come back after a reinstall when Google
+backup is on.
+
+Build and install on a connected device or emulator:
 
 ```sh
 cd android
@@ -55,8 +67,8 @@ cd android
   - `test/` – engine tests
 - `android/` – the Android app
   - `app/src/main/java/com/infinityat0/floodit/game/` – pure Kotlin port of the engine
-  - `app/src/main/java/com/infinityat0/floodit/ui/` – ViewModel, theme and Compose screen
-  - `app/src/test/` – engine tests and a Robolectric UI test
+  - `app/src/main/java/com/infinityat0/floodit/ui/` – ViewModel and settings, color themes (`ColorThemes.kt`), Compose screen and menu
+  - `app/src/test/` – engine tests and Robolectric UI tests (menu, themes, saved settings)
 
 ## Deploy
 

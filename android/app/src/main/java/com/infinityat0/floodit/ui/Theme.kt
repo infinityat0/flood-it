@@ -10,7 +10,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-/** Colours taken from the web version's base.css and style.css. */
+/** Text colours taken from the web version's base.css. */
 @Immutable
 data class FloodColors(
     val muted: Color,
@@ -31,8 +31,10 @@ private val DarkColors = FloodColors(
 )
 
 private val LightScheme = lightColorScheme(
-    primary = Color(0xFF8E3557),
+    primary = Color(0xFF3D5A80),
     onPrimary = Color.White,
+    secondaryContainer = Color(0xFFE3E8EF),
+    onSecondaryContainer = Color(0xFF24211D),
     background = Color(0xFFF4F1EA),
     onBackground = Color(0xFF24211D),
     surface = Color(0xFFF4F1EA),
@@ -43,8 +45,10 @@ private val LightScheme = lightColorScheme(
 )
 
 private val DarkScheme = darkColorScheme(
-    primary = Color(0xFFE07CA3),
+    primary = Color(0xFF98C1D9),
     onPrimary = Color(0xFF10151A),
+    secondaryContainer = Color(0xFF2E3640),
+    onSecondaryContainer = Color(0xFFE9E6E1),
     background = Color(0xFF181A1D),
     onBackground = Color(0xFFE9E6E1),
     surface = Color(0xFF181A1D),
@@ -56,9 +60,19 @@ private val DarkScheme = darkColorScheme(
 
 val LocalFloodColors = staticCompositionLocalOf { LightColors }
 
+/** The tile colours the player picked in Settings. */
+val LocalColorTheme = staticCompositionLocalOf { DEFAULT_COLOR_THEME }
+
 @Composable
-fun FloodItTheme(dark: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalFloodColors provides if (dark) DarkColors else LightColors) {
+fun FloodItTheme(
+    dark: Boolean = isSystemInDarkTheme(),
+    colorTheme: ColorTheme = DEFAULT_COLOR_THEME,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalFloodColors provides if (dark) DarkColors else LightColors,
+        LocalColorTheme provides colorTheme,
+    ) {
         MaterialTheme(colorScheme = if (dark) DarkScheme else LightScheme, content = content)
     }
 }

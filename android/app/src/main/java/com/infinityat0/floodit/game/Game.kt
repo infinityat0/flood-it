@@ -4,9 +4,8 @@ import kotlin.random.Random
 
 /** Pure rules for the flood fill puzzle, ported from the web engine.js. */
 
-/** Palette from the web version, as 0xAARRGGBB ints (no Android imports here). */
-val PALETTE: List<Long> = listOf(0xFF541E32, 0xFF8E3557, 0xFF88A33E, 0xFFF27405, 0xFFF7F2B2, 0xFF203759)
-val COLOUR_NAMES: List<String> = listOf("Plum", "Rose", "Moss", "Orange", "Cream", "Navy")
+/** Number of colours on a board. Which actual colours they are is up to the UI's colour theme. */
+const val COLOR_COUNT = 6
 
 enum class Size(val label: String, val cells: Int) {
     SMALL("Small", 10),
@@ -16,7 +15,7 @@ enum class Size(val label: String, val cells: Int) {
 
 enum class Status { PLAYING, WON, LOST }
 
-fun randomBoard(size: Int, colours: Int = PALETTE.size, rng: Random = Random.Default): IntArray =
+fun randomBoard(size: Int, colours: Int = COLOR_COUNT, rng: Random = Random.Default): IntArray =
     IntArray(size * size) { rng.nextInt(colours) }
 
 /** Indices of the region connected to the top-left cell by matching colour. */
@@ -60,7 +59,7 @@ fun isComplete(cells: IntArray): Boolean = cells.all { it == cells[0] }
  * Greedy solver: each step picks the colour that grows the flood the most
  * (ties broken by lowest index). Its move count is always achievable.
  */
-fun greedyMoves(cells: IntArray, size: Int, colours: Int = PALETTE.size): Int {
+fun greedyMoves(cells: IntArray, size: Int, colours: Int = COLOR_COUNT): Int {
     var board = cells
     var moves = 0
     while (!isComplete(board)) {
@@ -95,7 +94,7 @@ class Game(
         Game(size, colours, initial, cells, moves, limit, status)
 }
 
-fun createGame(size: Int, rng: Random = Random.Default, colours: Int = PALETTE.size): Game {
+fun createGame(size: Int, rng: Random = Random.Default, colours: Int = COLOR_COUNT): Game {
     val cells = randomBoard(size, colours, rng)
     return Game(size, colours, cells.copyOf(), cells, 0, greedyMoves(cells, size, colours), Status.PLAYING)
 }

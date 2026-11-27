@@ -9,6 +9,8 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import com.infinityat0.floodit.game.Size
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,45 +31,81 @@ class FloodItScreenTest {
     @get:Rule
     val compose = createAndroidComposeRule<ComponentActivity>()
 
-    private val names = listOf("Plum", "Rose", "Moss", "Orange", "Cream", "Navy")
+    /** Renders the screen the way MainActivity does, including the saved theme/appearance. */
+    private fun launch(): FloodItViewModel {
+        val vm = FloodItViewModel(compose.activity.application)
+        compose.setContent {
+            val dark = vm.appearance == Appearance.DARK
+            FloodItTheme(dark = dark, colorTheme = vm.colorTheme) { FloodItScreen(vm) }
+        }
+        return vm
+    }
 
-    private fun currentColour(): String = names.first {
-        compose.onAllNodesWithContentDescription("$it, current colour").fetchSemanticsNodes().isNotEmpty()
+    private fun currentColor(names: List<String>): String = names.first {
+        compose.onAllNodesWithContentDescription("$it, current color").fetchSemanticsNodes().isNotEmpty()
     }
 
     @Test
     fun makingAMoveUpdatesTheScreen() {
-        compose.setContent { FloodItTheme { FloodItScreen() } }
-        compose.onNodeWithText("Small 10×10").performClick()
-        compose.onNodeWithText("Pick a colour to start flooding.").assertExists()
+        val vm = launch()
+        vm.newGame(Size.SMALL)
+        compose.onNodeWithText("Tap a color below to start flooding.").assertExists()
         snapshot("start")
 
-        val before = currentColour()
-        val target = names.first { it != before }
+        val names = vm.colorTheme.colorNames
+        val target = names.first { it != currentColor(names) }
         compose.onNodeWithContentDescription(target).performClick()
         compose.waitForIdle()
-        check(currentColour() == target) { "flood colour should become $target" }
-        compose.onNodeWithText("Pick a colour to start flooding.").assertDoesNotExist()
+        check(currentColor(names) == target) { "flood color should become $target" }
+        compose.onNodeWithText("Tap a color below to start flooding.").assertDoesNotExist()
         snapshot("after-move")
     }
 
     @Test
-    @Config(qualifiers = "w411dp-h891dp-night-xxhdpi")
-    fun largeBoardInDarkMode() {
-        compose.setContent { FloodItTheme(dark = true) { FloodItScreen() } }
-        compose.onNodeWithText("Large 18×18").performClick()
+    fun menuChangesThemeAppearanceAndSize() {
+        val vm = launch()
+        compose.onNodeWithContentDescription("Open menu").performClick()
         compose.waitForIdle()
-        val target = names.first { it != currentColour() }
-        compose.onNodeWithContentDescription(target).performClick()
-        snapshot("large-dark")
-        compose.onNodeWithText("Medium 14×14").performClick()
+        snapshot("menu")
+
+        compose.onNodeWithText("Ocean").performClick()
+        compose.onNodeWithText("Dark").performClick()
+        compose.onNodeWithText("18×18").performScrollTo().performClick()
+        compose.waitForIdle()
+        assertEquals("ocean", vm.colorTheme.id)
+        assertEquals(Appearance.DARK, vm.appearance)
+        assertEquals(18, vm.game.size)
+        snapshot("menu-dark-ocean")
+
+        compose.activity.onBackPressedDispatcher.onBackPressed()
+        compose.waitForIdle()
+        compose.onNodeWithContentDescription(vm.colorTheme.colorNames.first { it != currentColor(vm.colorTheme.colorNames) })
+            .performClick()
+        snapshot("large-dark-ocean")
     }
 
     @Test
-    fun rulesDialogOpens() {
-        compose.setContent { FloodItTheme { FloodItScreen() } }
+    fun settingsSurviveARestart() {
+        val first = FloodItViewModel(compose.activity.application)
+        first.selectColorTheme(COLOR_THEMES.first { it.id == "sunset" })
+        first.selectAppearance(Appearance.LIGHT)
+        first.newGame(Size.LARGE)
+
+        // A fresh ViewModel reads the same saved settings, as after an app restart.
+        val second = FloodItViewModel(compose.activity.application)
+        assertEquals("sunset", second.colorTheme.id)
+        assertEquals(Appearance.LIGHT, second.appearance)
+        assertEquals(Size.LARGE, second.size)
+        assertEquals(18, second.game.size)
+    }
+
+    @Test
+    fun howToPlayOpensFromTheMenu() {
+        launch()
+        compose.onNodeWithContentDescription("Open menu").performClick()
         compose.onNodeWithText("How to play").performScrollTo().performClick()
-        compose.onNodeWithText("Your flood starts in the top-left square.", substring = true).assertExists()
+        compose.onNodeWithText("Your flood starts in the top-left corner.").assertExists()
+        snapshot("how-to-play")
     }
 
     /** Draws the activity's window into a PNG (captureToImage() hangs under Robolectric). */

@@ -19,31 +19,60 @@ enum class MessageKind { NONE, INFO, WIN, LOSE }
 
 class Message(val text: String, val kind: MessageKind)
 
-/** Holds the game across configuration changes and remembers the board size. */
+/** Light/dark choice. SYSTEM follows the phone's setting. */
+enum class Appearance(val label: String) { SYSTEM("System"), LIGHT("Light"), DARK("Dark") }
+
+private const val START_MESSAGE = "Tap a color below to start flooding."
+
+/**
+ * Holds the game across configuration changes, plus the player's settings.
+ *
+ * Settings live in the "settings" SharedPreferences file, which survives restarts
+ * and app updates, and is included in Android Auto Backup (see res/xml/backup_rules.xml
+ * and data_extraction_rules.xml) so it comes back after a reinstall.
+ */
 class FloodItViewModel(app: Application) : AndroidViewModel(app) {
 
-    private val prefs = app.getSharedPreferences("flood-it", Context.MODE_PRIVATE)
+    private val prefs = app.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE)
 
-    var size by mutableStateOf(
-        runCatching { Size.valueOf(prefs.getString(KEY_SIZE, null)!!) }.getOrDefault(Size.MEDIUM),
+    var colorTheme by mutableStateOf(colorThemeById(prefs.getString(KEY_THEME, null)))
+        private set
+
+    var appearance by mutableStateOf(
+        enumOrDefault(prefs.getString(KEY_APPEARANCE, null), Appearance.SYSTEM),
     )
+        private set
+
+    var size by mutableStateOf(enumOrDefault(prefs.getString(KEY_SIZE, null), Size.MEDIUM))
         private set
 
     var game by mutableStateOf(createGame(size.cells))
         private set
 
-    var message by mutableStateOf(Message("Pick a colour to start flooding.", MessageKind.INFO))
+    var message by mutableStateOf(Message(START_MESSAGE, MessageKind.INFO))
         private set
 
-    /** Percentage of the board flooded, as the web shows it (never below 1%). */
+    /** Percentage of the board flooded (never below 1%). */
     val filledPercent: Int
         get() = maxOf(1, floodRegion(game.cells, game.size).size * 100 / game.cells.size)
 
+    fun selectColorTheme(theme: ColorTheme) {
+        colorTheme = theme
+        prefs.edit { putString(KEY_THEME, theme.id) }
+    }
+
+    fun selectAppearance(value: Appearance) {
+        appearance = value
+        prefs.edit { putString(KEY_APPEARANCE, value.name) }
+    }
+
     fun newGame(newSize: Size = size) {
-        size = newSize
-        prefs.edit { putString(KEY_SIZE, newSize.name) }
+        if (newSize != size) {
+            size = newSize
+            prefs.edit { putString(KEY_SIZE, newSize.name) }
+        }
         game = createGame(newSize.cells)
-        message = Message("Pick a colour to start flooding.", MessageKind.INFO)
+        message = Message(START_MESSAGE, MessageKind.INFO)
     }
 
     fun retry() {
@@ -51,9 +80,9 @@ class FloodItViewModel(app: Application) : AndroidViewModel(app) {
         message = Message("Same board, fresh start.", MessageKind.INFO)
     }
 
-    fun choose(colour: Int) {
+    fun choose(color: Int) {
         val before = game
-        game = play(before, colour)
+        game = play(before, color)
         if (game === before) return
         message = when (game.status) {
             Status.WON -> {
@@ -72,6 +101,12 @@ class FloodItViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private companion object {
+        const val PREFS_FILE = "settings"
+        const val KEY_THEME = "color_theme"
+        const val KEY_APPEARANCE = "appearance"
         const val KEY_SIZE = "size"
+
+        inline fun <reified T : Enum<T>> enumOrDefault(name: String?, default: T): T =
+            enumValues<T>().firstOrNull { it.name == name } ?: default
     }
 }
