@@ -5,6 +5,13 @@ from the top-left corner, pick colours to grow your flood until it covers the
 whole board. Every board's move limit comes from a greedy solver, so it can
 always be won within the limit.
 
+## Download for Android
+
+**[Download Flood-It.apk](https://github.com/infinityat0/flood-it/releases/latest/download/Flood-It.apk)** (Android 8.0+).
+Open it on your phone and allow installing from your browser or file manager when asked.
+Every change to `android/` on `master` publishes a new build to
+[Releases](https://github.com/infinityat0/flood-it/releases) via `.github/workflows/android-release.yml`.
+
 ## Play locally (web)
 
 No build step. Serve `web/public/` over HTTP (ES modules don't load from `file://`):
